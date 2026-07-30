@@ -1,0 +1,49 @@
+#include <LiquidCrystal.h>
+
+// initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
+
+const int buttonPin = 6;
+int buttonPress = 0;
+int lastButtonState = HIGH;   // INPUT_PULLUP means idle = HIGH
+
+// --- Program your topics here ---
+const char* topics[] = {
+  "RISC-V CPU",
+  "Arduino Projects",
+  "Japanese",
+  "Korean",
+  "PCB Design",
+  "FE Exam Prep",
+  "Job Search"
+};
+const int numTopics = sizeof(topics) / sizeof(topics[0]);
+
+void setup() {
+  lcd.begin(16, 2);
+  lcd.print("Study Spinner");
+  lcd.setCursor(0, 1);
+  lcd.print("Press to spin");
+
+  pinMode(buttonPin, INPUT_PULLUP); // button to GND, no external resistor needed
+  randomSeed(analogRead(A0));       // seed RNG from floating analog pin noise
+}
+
+void loop() {
+  buttonPress = digitalRead(buttonPin);
+
+  // detect a fresh press (HIGH -> LOW transition), with simple debounce
+  if (buttonPress == LOW && lastButtonState == HIGH) {
+    delay(50); // debounce
+    if (digitalRead(buttonPin) == LOW) {
+      int choice = random(numTopics);
+
+      lcd.clear();
+      lcd.print("Topic:");
+      lcd.setCursor(0, 1);
+      lcd.print(topics[choice]);
+    }
+  }
+
+  lastButtonState = buttonPress;
+}
